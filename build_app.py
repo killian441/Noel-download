@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Python编译脚本
-用于GitHub Actions中的可执行文件编译
-支持不同变体（release/debug）和平台特定的可执行文件命名
-包含了原 build_config.py 的功能
+Python Build Script
+For compiling executables within GitHub Actions
+Supports different variants (release/debug) and platform-specific executable naming
+Incorporates the functionality of the original `build_config.py`
 """
 
 import subprocess
@@ -15,15 +15,15 @@ import argparse
 import re
 from pathlib import Path
 
-# 导入编码工具（如果存在）
+# Import the encoding tool (if it exists).
 try:
     from encoding_utils import safe_print, setup_utf8_encoding
-    # 确保UTF-8编码设置
+    # Ensure UTF-8 encoding settings
     setup_utf8_encoding()
-    # 使用安全的print函数
+    # Use the safe print function
     print = safe_print
 except ImportError:
-    # 如果编码工具不存在，使用基本的编码设置
+    # If the encoding tool is not available, use the basic encoding settings.
     if sys.platform.startswith('win'):
         import locale
         try:
@@ -32,18 +32,18 @@ except ImportError:
             try:
                 locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
             except locale.Error:
-                pass  # 使用默认编码
+                pass  # Use default encoding
 
 
 def parse_requirements(requirements_file='requirements.txt'):
     """
-    解析 requirements.txt 文件，提取所有包名
-    
+    Parse the requirements.txt file and extract all package names.
+
     Args:
-        requirements_file: requirements.txt 文件路径
-        
+        requirements_file: Path to the requirements.txt file.
+
     Returns:
-        list: 包名列表
+        list: A list of package names.
     """
     packages = []
     req_path = Path(__file__).parent / requirements_file
@@ -54,12 +54,12 @@ def parse_requirements(requirements_file='requirements.txt'):
     with open(req_path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
-            # 跳过注释和空行
+            # Skip comments and blank lines
             if not line or line.startswith('#'):
                 continue
             
-            # 提取包名（去除版本约束）
-            # 支持格式：package, package==1.0, package>=1.0,<2.0
+            # Extract package name (remove version constraints)
+            # Supported formats：package, package==1.0, package>=1.0,<2.0
             match = re.match(r'^([a-zA-Z0-9_-]+)', line)
             if match:
                 packages.append(match.group(1))
@@ -67,7 +67,7 @@ def parse_requirements(requirements_file='requirements.txt'):
     return packages
 
 
-# 某些包需要显式导入子模块
+# Some packages require explicit import of submodules.
 PACKAGE_SUBMODULES = {
     'requests': [
         'requests.adapters',
@@ -133,8 +133,8 @@ PACKAGE_SUBMODULES = {
     ],
 }
 
-# 标准库模块（需要显式导入的）
-# 注意: tkinter 相关模块已移除，文件夹选择改为前端实现
+# Standard library modules (require explicit import)
+# Note: tkinter-related modules have been removed; folder selection has been shifted to a front-end implementation.
 STDLIB_MODULES = [
     'threading',
     'json',
@@ -158,14 +158,14 @@ STDLIB_MODULES = [
     'datetime',
 ]
 
-# 包名映射（处理特殊情况）
+# Package name mapping (handling special cases)
 PACKAGE_NAME_MAPPING = {
     'pillow': 'PIL',
     'fake-useragent': 'fake_useragent',
     'beautifulsoup4': 'bs4',
 }
 
-# 隐式依赖（某些包的运行时依赖）
+# Implicit dependencies (runtime dependencies of certain packages)
 IMPLICIT_DEPENDENCIES = [
     'charset_normalizer',
     'idna',
@@ -175,47 +175,47 @@ IMPLICIT_DEPENDENCIES = [
 
 def get_hidden_imports():
     """
-    获取所有需要的 hiddenimports
+    Get all the necessary hiddenimports
     
     Returns:
-        list: 完整的 hiddenimports 列表
+        list: Complete list of hiddenimports
     """
     packages = parse_requirements()
     hidden_imports = []
     
-    # 添加基础包
+    # Add base package
     for pkg in packages:
         pkg_lower = pkg.lower()
         
-        # 处理特殊包名映射
+        # Handling special package name mappings
         if pkg_lower in PACKAGE_NAME_MAPPING:
             mapped_pkg = PACKAGE_NAME_MAPPING[pkg_lower]
             hidden_imports.append(mapped_pkg)
             pkg = mapped_pkg
         else:
-            # 将连字符转换为下划线
+            # Convert hyphens to underscores
             pkg = pkg.replace('-', '_')
             hidden_imports.append(pkg)
         
-        # 添加已知的子模块
+        # Add known submodules
         if pkg in PACKAGE_SUBMODULES:
             hidden_imports.extend(PACKAGE_SUBMODULES[pkg])
     
-    # 添加标准库模块
+    # Add standard library module
     hidden_imports.extend(STDLIB_MODULES)
     
-    # 添加隐式依赖
+    # Add implicit dependencies
     hidden_imports.extend(IMPLICIT_DEPENDENCIES)
     
-    # 加入本地模块（PyInstaller 有时不会解析到函数/方法内的导入）
-    # 确保配置模块被正确打包
+    # Include local modules (PyInstaller sometimes fails to detect imports located within functions/methods)
+    # Ensure configuration modules are correctly bundled
     hidden_imports.extend([
         'config',
         'web_app',
         'novel_downloader',
     ])
 
-    # 去重并排序
+    # Deduplication and sorting
     hidden_imports = sorted(set(hidden_imports))
     
     return hidden_imports
@@ -223,7 +223,7 @@ def get_hidden_imports():
 
 def get_platform_config(target_platform: str = None) -> dict:
     """
-    获取目标平台的构建配置
+    Obtain the build configuration of the target platform
     
     Args:
         target_platform: 'windows', 'linux', 'darwin'，默认为当前平台
@@ -287,15 +287,15 @@ def get_platform_config(target_platform: str = None) -> dict:
 
 def get_executable_name(base_name: str, platform: str, variant: str) -> str:
     """
-    生成平台适配的可执行文件名
-    
+    Generate a platform-appropriate executable filename
+
     Args:
-        base_name: 基础名称
-        platform: 目标平台
-        variant: 构建变体
+        base_name: Base name
+        platform: Target platform
+        variant: Build variant
     
     Returns:
-        完整的可执行文件名（不含扩展名）
+        The complete executable filename (excluding the file extension)
     """
     name = base_name
     
@@ -314,18 +314,18 @@ def get_executable_name(base_name: str, platform: str, variant: str) -> str:
 
 
 def build_executable(variant="release", executable_name=None, target_platform=None):
-    """编译可执行文件
+    """Compile an executable file
     
     Args:
-        variant: 构建变体 ('release' 或 'debug')
-        executable_name: 自定义可执行文件名称（不包含扩展名）
-        target_platform: 目标平台 ('windows', 'linux', 'darwin')，默认为当前平台
+        variant: Build variant ('release' or 'debug')
+        executable_name: Custom name for the executable (excluding the file extension)
+        target_platform: Target platform ('windows', 'linux', 'darwin'); defaults to the current platform
     
     Returns:
         tuple: (success, built_name, target_name)
-            - success: 构建是否成功
-            - built_name: spec文件中定义的原始名称
-            - target_name: 期望的最终名称
+            - success: Whether the build was successful
+            - built_name: The original name as defined in the spec file
+            - target_name: The desired final name
     """
     # 获取平台配置
     platform_config = get_platform_config(target_platform)
@@ -385,10 +385,10 @@ def build_executable(variant="release", executable_name=None, target_platform=No
         return False, target_name, target_name
 
 def check_output(expected_name):
-    """检查编译输出
-    
+    """Check the compilation output
+
     Args:
-        expected_name: 期望的可执行文件名称（不包含扩展名）
+        expected_name: The expected name of the executable file (excluding the extension)
     """
     print("Checking build output...")
     if os.path.exists("dist"):
@@ -411,11 +411,11 @@ def check_output(expected_name):
         return False
 
 def rename_executable(current_name, target_name):
-    """重命名可执行文件
-    
+    """Rename an executable file
+
     Args:
-        current_name: 当前文件名（不包含扩展名）
-        target_name: 目标文件名（不包含扩展名）
+        current_name: The current filename (excluding the extension)
+        target_name: The target filename (excluding the extension)
     """
     if current_name == target_name:
         return True
@@ -437,7 +437,7 @@ def rename_executable(current_name, target_name):
         return False
 
 def main():
-    """主函数"""
+    """Main function"""
     parser = argparse.ArgumentParser(description="Build Tomato Novel Downloader")
     parser.add_argument("--variant", choices=["release", "debug"], default="release",
                        help="Build variant (release or debug)")
@@ -451,7 +451,7 @@ def main():
     if success:
         # 先检查构建输出
         if check_output(built_name):
-            # 如果built_name和target_name不同，需要重命名
+            # If `built_name` and `target_name` are different, a rename is required.
             if built_name != target_name:
                 if rename_executable(built_name, target_name):
                     print(f"Build completed successfully! Final executable: {target_name}")
