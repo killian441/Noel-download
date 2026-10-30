@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-命令行界面入口 - 支持 Termux 和无 GUI 环境
+Command-line interface entry point – supports Termux and non-GUI environments
 """
 
 import argparse
@@ -8,7 +8,7 @@ import sys
 import os
 from typing import Optional
 
-# 确保能导入项目模块
+# Ensure that project modules can be imported.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from platform_utils import detect_platform, get_feature_status_report
@@ -17,18 +17,18 @@ from locales import t
 
 def format_table(headers: list, rows: list, col_widths: Optional[list] = None) -> str:
     """
-    格式化文本表格
-    
+    Format a text-based table
+
     Args:
-        headers: 表头列表
-        rows: 数据行列表
-        col_widths: 列宽列表（可选）
+        headers: A list of table headers
+        rows: A list of data rows
+        col_widths: A list of column widths (optional)
     
     Returns:
-        格式化的表格字符串
+        A formatted table string
     """
     if not rows:
-        return "无数据"
+        return "No data"
     
     # 计算列宽
     if col_widths is None:
@@ -60,13 +60,13 @@ def format_table(headers: list, rows: list, col_widths: Optional[list] = None) -
 
 
 def cmd_search(args):
-    """搜索书籍命令"""
+    """Command to search for books"""
     from novel_downloader import get_api_manager
     from config import CONFIG
     
     keyword = args.keyword
     if not keyword:
-        print("错误: 请提供搜索关键词")
+        print("Error: Please provide search keywords")
         return 1
     
     print(f"正在搜索: {keyword}")
@@ -75,7 +75,7 @@ def cmd_search(args):
     result = api.search_books(keyword, offset=0)
     
     if not result or not result.get('data'):
-        print("未找到相关书籍")
+        print("No relevant books found")
         return 0
     
     # 解析搜索结果
@@ -107,24 +107,24 @@ def cmd_search(args):
             break
     
     if not books:
-        print("未找到相关书籍")
+        print("No relevant books found")
         return 0
     
     # 显示结果表格
-    headers = ['书籍ID', '书名', '作者', '状态']
-    print(f"\n找到 {len(books)} 本书籍:\n")
+    headers = ['Book ID', 'Book Title', 'Author', 'Status']
+    print(f"\nFound {len(books)} books:\n")
     print(format_table(headers, books))
     
     return 0
 
 
 def cmd_info(args):
-    """显示书籍信息命令"""
+    """Command to display book information"""
     from novel_downloader import get_api_manager
     
     book_id = args.book_id
     if not book_id:
-        print("错误: 请提供书籍ID")
+        print("Error: Please provide the book ID")
         return 1
     
     # 从 URL 提取 ID
@@ -135,17 +135,17 @@ def cmd_info(args):
             book_id = match.group(1)
     
     if not book_id.isdigit():
-        print("错误: 书籍ID必须是数字")
+        print("Error: Book ID must be a number")
         return 1
     
-    print(f"正在获取书籍信息: {book_id}")
+    print(f"Retrieving book information: {book_id}")
     
     api = get_api_manager()
     
     # 获取书籍详情
     book_detail = api.get_book_detail(book_id)
     if not book_detail:
-        print("错误: 无法获取书籍信息")
+        print("Error: Unable to retrieve book information")
         return 1
     
     # 获取章节列表
@@ -160,14 +160,14 @@ def cmd_info(args):
     
     # 显示信息
     print("\n" + "=" * 50)
-    print(f"书名: {book_detail.get('book_name', '未知')}")
-    print(f"作者: {book_detail.get('author', '未知')}")
-    print(f"章节数: {chapter_count}")
+    print(f"Book Title: {book_detail.get('book_name', 'Unknown')}")
+    print(f"Author: {book_detail.get('author', 'Unknown')}")
+    print(f"Number of Chapters: {chapter_count}")
     print("-" * 50)
     
     abstract = book_detail.get('abstract', '')
     if abstract:
-        print("简介:")
+        print("Introduction:")
         # 限制简介长度
         if len(abstract) > 200:
             abstract = abstract[:200] + "..."
@@ -179,14 +179,14 @@ def cmd_info(args):
 
 
 def cmd_download(args):
-    """下载书籍命令"""
+    """Command to download books"""
     from novel_downloader import Run
     from platform_utils import detect_platform
     import os
     
     book_id = args.book_id
     if not book_id:
-        print("错误: 请提供书籍ID")
+        print("Error: Please provide the book ID")
         return 1
     
     # 从 URL 提取 ID
@@ -197,7 +197,7 @@ def cmd_download(args):
             book_id = match.group(1)
     
     if not book_id.isdigit():
-        print("错误: 书籍ID必须是数字")
+        print("Error: Book ID must be a number")
         return 1
     
     # 确定保存路径
@@ -215,12 +215,12 @@ def cmd_download(args):
     # 确定格式
     file_format = args.format or 'txt'
     if file_format not in ['txt', 'epub']:
-        print(f"警告: 不支持的格式 '{file_format}'，使用默认格式 txt")
+        print(f"Warning: Unsupported format '{file_format}'; using default format 'txt'")
         file_format = 'txt'
     
-    print(f"开始下载书籍: {book_id}")
-    print(f"保存路径: {save_path}")
-    print(f"文件格式: {file_format}")
+    print(f"Starting download of book: {book_id}")
+    print(f"Save path: {save_path}")
+    print(f"File format: {file_format}")
     print("-" * 50)
     
     # 进度回调
@@ -239,68 +239,68 @@ def cmd_download(args):
     )
     
     if success:
-        print("\n下载完成!")
+        print("\nDownload complete!")
         return 0
     else:
-        print("\n下载失败")
+        print("\nDownload failed")
         return 1
 
 
 def cmd_status(args):
-    """显示平台状态命令"""
+    """Command to display platform status"""
     report = get_feature_status_report()
     print(report)
     return 0
 
 
 def create_parser() -> argparse.ArgumentParser:
-    """创建命令行参数解析器"""
+    """Create a command-line argument parser"""
     parser = argparse.ArgumentParser(
         prog='fanqie-cli',
-        description='番茄小说下载器 - 命令行版本',
+        description='Tomato Novel Downloader - Command-Line Version',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例:
-  %(prog)s search "斗破苍穹"          搜索书籍
-  %(prog)s info 12345                 查看书籍信息
-  %(prog)s download 12345             下载书籍
-  %(prog)s download 12345 -f epub     下载为 EPUB 格式
-  %(prog)s status                     显示平台状态
+Examples:
+    %(prog)s search "Battle Through the Heavens"    Search for books
+    %(prog)s info 12345                             View book information
+    %(prog)s download 12345                         Download a book
+    %(prog)s download 12345 -f epub                 Download in EPUB format
+    %(prog)s status                                 Show platform status
         """
     )
     
     parser.add_argument('-v', '--verbose', action='store_true',
-                       help='显示详细输出')
+                       help='Show detailed output')
     
-    subparsers = parser.add_subparsers(dest='command', help='可用命令')
-    
-    # search 命令
-    search_parser = subparsers.add_parser('search', help='搜索书籍')
-    search_parser.add_argument('keyword', help='搜索关键词')
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+
+    # 'search' command
+    search_parser = subparsers.add_parser('search', help='Search for books')
+    search_parser.add_argument('keyword', help='Search keyword')
     search_parser.set_defaults(func=cmd_search)
     
-    # info 命令
-    info_parser = subparsers.add_parser('info', help='查看书籍信息')
-    info_parser.add_argument('book_id', help='书籍ID或URL')
+    # 'info' command
+    info_parser = subparsers.add_parser('info', help='View book information')
+    info_parser.add_argument('book_id', help='Book ID or URL')
     info_parser.set_defaults(func=cmd_info)
     
-    # download 命令
-    download_parser = subparsers.add_parser('download', help='下载书籍')
-    download_parser.add_argument('book_id', help='书籍ID或URL')
-    download_parser.add_argument('-p', '--path', help='保存路径')
+    # 'download' command
+    download_parser = subparsers.add_parser('download', help='Download a book')
+    download_parser.add_argument('book_id', help='Book ID or URL')
+    download_parser.add_argument('-p', '--path', help='Save path')
     download_parser.add_argument('-f', '--format', choices=['txt', 'epub'],
-                                default='txt', help='输出格式 (默认: txt)')
+    default='txt', help='Output format (default: txt)')
     download_parser.set_defaults(func=cmd_download)
     
-    # status 命令
-    status_parser = subparsers.add_parser('status', help='显示平台状态')
+    # 'status' command
+    status_parser = subparsers.add_parser('status', help='Show platform status')
     status_parser.set_defaults(func=cmd_status)
-    
+        
     return parser
 
 
 def check_termux_dependencies():
-    """检查 Termux 环境下的依赖"""
+    '''Check dependencies in the Termux environment'''
     platform_info = detect_platform()
     
     if platform_info.is_termux:
@@ -328,8 +328,8 @@ def check_termux_dependencies():
 
 
 def main():
-    """CLI 主入口"""
-    # 检测平台
+    """CLI main entry point"""
+    # Detect platform
     platform_info = detect_platform()
     
     # Termux 环境检查依赖
@@ -342,7 +342,7 @@ def main():
         parser.print_help()
         return 0
     
-    # 执行命令
+    # Execute command
     try:
         return args.func(args)
     except KeyboardInterrupt:
