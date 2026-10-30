@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-配置管理模块 - 包含版本信息、全局配置
-API文档: http://49.232.137.12/docs
+Configuration Management Module - Includes version information and global configuration
+(Original) API document: http://49.232.137.12/docs
 """
 
 __version__ = "1.1.0"
@@ -34,7 +34,7 @@ from locales import t
 
 _LOCAL_CONFIG_FILE = os.path.join(tempfile.gettempdir(), 'fanqie_novel_downloader_config.json')
 
-# 硬编码的 API 源配置
+# Hard-coded API source configuration
 HARDCODED_API_SOURCES = [
     {"name": "中国|浙江省|宁波市|电信", "base_url": "http://qkfqapi.vv9v.cn"},
     {"name": "中国|北京市|腾讯云", "base_url": "http://49.232.137.12"},
@@ -42,7 +42,7 @@ HARDCODED_API_SOURCES = [
     {"name": "日本|东京", "base_url": "https://fq.shusan.cn"}
 ]
 
-# 硬编码的配置参数
+# Hard-coded configuration parameters
 HARDCODED_CONFIG = {
     "max_workers": 2,
     "max_retries": 3,
@@ -69,18 +69,18 @@ def _load_local_pref() -> Dict:
         pass
     return {}
 
-# API 端点配置 - 对接 http://49.232.137.12/docs
+# API Endpoint Configuration - Interconnection http://49.232.137.12/docs
 LOCAL_ENDPOINTS = {
-    "search": "/api/search",       # 搜索书籍 (key, tab_type, offset)
-    "detail": "/api/detail",       # 获取书籍详情 (book_id)
-    "book": "/api/book",           # 获取书籍目录 (book_id)
-    "directory": "/api/directory", # 获取简化目录 (fq_id)
-    "content": "/api/content",     # 内容接口 (tab=小说/批量/下载, item_id/book_id)
+    "search": "/api/search",       # Search books (key, tab_type, offset)
+    "detail": "/api/detail",       # Get book details (book_id)
+    "book": "/api/book",           # Get Book Catalog (book_id)
+    "directory": "/api/directory", # Get a simplified directory (fq_id)
+    "content": "/api/content",     # Content Interface (tab=novel/batch/download, item_id/book_id)
 }
 
 
 def load_config() -> Dict:
-    """加载硬编码配置"""
+    """Load hard-coded configuration"""
     print(t("config_loading_local"))
     
     config = {
@@ -102,7 +102,7 @@ def load_config() -> Dict:
         "endpoints": LOCAL_ENDPOINTS
     }
 
-    # 读取本地偏好（手动/自动选择均可复用）
+    # Read local preferences (manual/automatic selection can be reused).
     local_pref = _load_local_pref()
     mode = str(local_pref.get("api_base_url_mode", "auto") or "auto").lower()
     pref_url = _normalize_base_url(str(local_pref.get("api_base_url", "") or ""))
