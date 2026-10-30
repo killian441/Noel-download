@@ -9,13 +9,13 @@ import tempfile
 
 # Default language
 # 可以通过修改此变量切换语言 / Change this to 'en' to switch language
-DEFAULT_LANG = "zh"
+DEFAULT_LANG = "en"
 
 # 配置文件路径（与 web_app.py 保持一致）
-_CONFIG_FILE = os.path.join(tempfile.gettempdir(), 'fanqie_novel_downloader_config.json')
+_CONFIG_FILE = os.path.join(tempfile.gettempdir(), 'tomato_novel_downloader_config.json')
 
 def get_current_lang():
-    """从配置文件读取当前语言设置"""
+    """Read the current language setting from the configuration file."""
     try:
         if os.path.exists(_CONFIG_FILE):
             with open(_CONFIG_FILE, 'r', encoding='utf-8') as f:
@@ -26,7 +26,7 @@ def get_current_lang():
     return DEFAULT_LANG
 
 def set_current_lang(lang):
-    """保存语言设置到配置文件"""
+    """Save language settings to a configuration file"""
     try:
         config = {}
         if os.path.exists(_CONFIG_FILE):
