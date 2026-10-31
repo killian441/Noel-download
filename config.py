@@ -32,7 +32,7 @@ from typing import Dict
 from fake_useragent import UserAgent
 from locales import t
 
-_LOCAL_CONFIG_FILE = os.path.join(tempfile.gettempdir(), 'fanqie_novel_downloader_config.json')
+_LOCAL_CONFIG_FILE = os.path.join(tempfile.gettempdir(), 'tomato_novel_downloader_config.json')
 
 # Hard-coded API source configuration
 HARDCODED_API_SOURCES = [

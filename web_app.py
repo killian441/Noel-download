@@ -37,7 +37,7 @@ def set_access_token(token):
 
 # Configuration file path – saved to the system's temporary directory (cross-platform compatible)
 TEMP_DIR = tempfile.gettempdir()
-CONFIG_FILE = os.path.join(TEMP_DIR, 'fanqie_novel_downloader_config.json')
+CONFIG_FILE = os.path.join(TEMP_DIR, 'tomato_novel_downloader_config.json')
 
 def _read_local_config() -> dict:
     try:
@@ -75,7 +75,7 @@ def get_default_download_path():
         downloads = os.path.join(home, 'Downloads')
     else:
         # Linux / Termux / 其他 Unix
-        downloads = os.path.join(home, 'Downloads')
+        downloads = os.path.join(home, 'downloads')
         # If the Downloads directory does not exist, try using the XDG user directories.
         if not os.path.exists(downloads):
             xdg_download = os.environ.get('XDG_DOWNLOAD_DIR')
@@ -111,7 +111,7 @@ current_download_status = {
 status_lock = threading.Lock()
 
 
-# ===================== 任务管理器 =====================
+# ===================== Task Manager =====================
 
 class TaskManager:
     """Download Queue Task Manager
@@ -790,7 +790,7 @@ api_manager = None
 novel_downloader = None
 downloader_instance = None
 
-def init_modules(skip_api_select=False):
+def init_modules(skip_api_select=True):
     """Initialize core modules"""
     global api, api_manager, novel_downloader, downloader_instance
     try:
@@ -2293,7 +2293,7 @@ def api_open_folder():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    print(f'Configuration file location: {CONFIG_FILE}')
-    webapp_port
-    print(t('web_server_started')+f'on port {webapp_port}')
+    print(t('main_config_path',CONFIG_FILE))
+    webapp_port = 5000
+    print(f'Web server starting on port {webapp_port}')
     app.run(host='0.0.0.0', port=webapp_port, debug=False)
